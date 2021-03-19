@@ -1,0 +1,1 @@
+/home/gergeh/.emacs.d/.local/straight/repos/gocode/emacs-company/company-go.el

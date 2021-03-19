@@ -1,0 +1,1 @@
+/home/gergeh/.emacs.d/.local/straight/repos/rtags/src/ivy-rtags.el

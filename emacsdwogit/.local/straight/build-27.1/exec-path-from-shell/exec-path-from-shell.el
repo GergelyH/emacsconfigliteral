@@ -1,0 +1,1 @@
+/home/gergeh/.emacs.d/.local/straight/repos/exec-path-from-shell/exec-path-from-shell.el

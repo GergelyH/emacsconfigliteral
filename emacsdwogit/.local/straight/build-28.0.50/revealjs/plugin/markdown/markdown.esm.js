@@ -1,0 +1,1 @@
+/home/gergeh/.emacs.d/.local/straight/repos/reveal.js/plugin/markdown/markdown.esm.js

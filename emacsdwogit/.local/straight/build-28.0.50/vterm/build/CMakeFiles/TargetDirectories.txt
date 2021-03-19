@@ -1,0 +1,4 @@
+/home/gergeh/.emacs.d/.local/straight/build-28.0.50/vterm/build/CMakeFiles/rebuild_cache.dir
+/home/gergeh/.emacs.d/.local/straight/build-28.0.50/vterm/build/CMakeFiles/edit_cache.dir
+/home/gergeh/.emacs.d/.local/straight/build-28.0.50/vterm/build/CMakeFiles/run.dir
+/home/gergeh/.emacs.d/.local/straight/build-28.0.50/vterm/build/CMakeFiles/vterm-module.dir

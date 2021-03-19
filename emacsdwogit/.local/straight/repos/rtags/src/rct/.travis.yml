@@ -1,0 +1,55 @@
+#
+# Available repositories are listed here:
+# https://github.com/travis-ci/apt-source-whitelist/blob/master/ubuntu.json
+#
+
+sudo: false
+
+language: cpp
+
+matrix:
+    include:
+        - env: COMPILER_VERSION=4.8
+          os: linux
+          compiler: g++
+          addons:
+              apt:
+                  sources:
+                      - ubuntu-toolchain-r-test
+                  packages:
+                      - g++-4.8
+                      - libcppunit-dev
+
+        - env: COMPILER_VERSION=4.9
+          os: linux
+          compiler: g++
+          addons:
+              apt:
+                  sources:
+                      - ubuntu-toolchain-r-test
+                  packages:
+                      - g++-4.9
+                      - libcppunit-dev
+
+        - env: COMPILER_VERSION=5.0
+          os: linux
+          compiler: clang++
+          addons:
+              apt:
+                  sources:
+                      - llvm-toolchain-trusty-5.0
+                  packages:
+                      - clang-5.0
+                      - libcppunit-dev
+
+before_script:
+    - mkdir build
+    - cd build
+    - echo "Using compilers $CXX-${COMPILER_VERSION} and $CC-${COMPILER_VERSION}"
+    - cmake -DCMAKE_CXX_COMPILER=$CXX-${COMPILER_VERSION} -DCMAKE_C_COMPILER=$CC-${COMPILER_VERSION} -DRCT_WITH_TESTS=1 ..
+
+
+script:
+    - make -j4
+    - make -j4 test
+    - cat Testing/Temporary/LastTest.log

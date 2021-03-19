@@ -1,0 +1,1 @@
+/home/gergeh/.emacs.d/.local/straight/repos/emacs-jupyter/jupyter-org-client.el

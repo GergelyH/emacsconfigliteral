@@ -1,0 +1,15 @@
+;;;; Emacs Bookmark Format Version 1 ;;;; -*- coding: utf-8-emacs -*-
+;;; This format is meant to be slightly human-readable;
+;;; nevertheless, you probably don't want to edit it.
+;;; -*- End Of Bookmark File Format Version Stamp -*-
+(("org-capture-last-stored"
+ (filename . "~/work/notes/inbox.org")
+ (front-context-string . "* Spreadsheet An")
+ (rear-context-string . "z életem kérdés\n")
+ (position . 429))
+("org-refile-last-stored"
+ (filename . "~/work/notes/projects.org")
+ (front-context-string . "*** Sacrifice is")
+ (rear-context-string . "z ezért eldobom\n")
+ (position . 6816))
+)

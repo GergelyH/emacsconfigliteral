@@ -1,0 +1,1 @@
+/home/gergeh/.emacs.d/.local/straight/repos/evil-collection/modes/occur/evil-collection-occur.el

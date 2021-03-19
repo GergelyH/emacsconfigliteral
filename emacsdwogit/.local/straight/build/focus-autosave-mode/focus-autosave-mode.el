@@ -1,0 +1,1 @@
+/home/gergeh/.emacs.d/.local/straight/repos/focus-autosave-mode.el/focus-autosave-mode.el

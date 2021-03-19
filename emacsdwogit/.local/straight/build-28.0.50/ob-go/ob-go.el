@@ -1,0 +1,1 @@
+/home/gergeh/.emacs.d/.local/straight/repos/ob-go/ob-go.el

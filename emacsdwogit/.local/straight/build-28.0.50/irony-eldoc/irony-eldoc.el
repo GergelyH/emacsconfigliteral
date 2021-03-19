@@ -1,0 +1,1 @@
+/home/gergeh/.emacs.d/.local/straight/repos/irony-eldoc/irony-eldoc.el

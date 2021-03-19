@@ -1,0 +1,21 @@
+
+;; ----- amx-history -----
+(
+ +workspace/new
+ tab-new-to
+ tab-new
+ projectile-invalidate-cache
+ sync-google-calendar
+ cd
+ 5x5
+)
+
+;; ----- amx-data -----
+(
+ (sync-google-calendar . 1)
+ (treemacs-refresh . 1)
+ (projectile-invalidate-cache . 1)
+ (tab-new . 1)
+ (tab-new-to . 1)
+ (+workspace/new . 1)
+)

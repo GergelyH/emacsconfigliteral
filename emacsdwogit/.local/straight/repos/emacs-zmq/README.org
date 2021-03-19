@@ -1,0 +1,484 @@
+Bindings to =zmq= in Emacs.
+
+[[https://melpa.org/#/zmq][file:https://melpa.org/packages/zmq-badge.svg]] [[https://travis-ci.com/dzop/emacs-zmq][file:https://travis-ci.com/dzop/emacs-zmq.svg?branch=master]]
+
+* Installation
+
+*NOTE:* Your Emacs needs to have been built with module support!
+
+The recommended way to install this package is through the built-in package
+manager in Emacs.
+
+Ensure MELPA is in your =package-archives=
+
+#+BEGIN_SRC elisp
+(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
+#+END_SRC
+
+Ensure the latest versions of MELPA packages are available
+
+=M-x package-refresh-contents RET=
+
+Install ZMQ
+
+=M-x package-install RET zmq RET=
+
+Once installed, on the first call to =(require 'zmq)= you will be presented
+with the option to either download one of the module binaries available on the
+[[https://github.com/dzop/emacs-zmq/releases][releases]] page that is compatible with your system (and based on the variable
+=system-configuration=) or, if there isn't a binary available for download, to
+build the C module.
+
+*NOTE:* In order to download the module binaries it is best to have [[https://curl.haxx.se/][curl]]
+installed on your system since the built-in Emacs method for downloading files,
+=url-retrieve=, has issues with HTTPS connections on some systems. On Windows,
+if your Emacs was not built with the proper =GnuTLS= support (which appears to
+be the default), =curl= is necessary. If you run into issues you can always
+manually download the module and ensure the =emacs-zmq.(dll|so)= file is placed
+in the same directory as the =zmq.el= file.
+
+** Dependencies
+
+- libzmq :: https://github.com/zeromq/libzmq
+** Building
+
+Run =make= in the top level directory to build the =zmq= module. Alternatively
+when running =(require 'zmq)= and the module is not built already, you will be
+asked to build it.
+
+Note, the =autotools= collection must be available on your system in order to
+build the module as well as the =pkg-config= tool.
+
+By default =pkg-config= is used to search for a usable =libzmq= to use, falling
+back to downloading and building a local copy if necessary.
+
+You can tell =pkg-config= to use a specific =libzmq= by setting the environment
+variables =ZMQ_LIBS= and =ZMQ_CFLAGS= before building the module. The module
+will link to the =libzmq= that those variables point to if it can. Note, when
+linking =libzmq= in this way, the =zmq_poller= interface is required. This
+means that the linked =libzmq= needs to have been configured using the option
+=--enable-drafts=yes= if =libzmq= < 4.3.1.
+
+If =ZMQ_LIBS= and =ZMQ_CFLAGS= are not set or they point to a =libzmq= that
+isn't usable, a local copy of =libzmq= is downloaded, built, and statically
+linked into the resulting module. The default version of =libzmq= built in this
+case is 4.3.1 and can be changed by specifying the environment variable
+=ZMQ_VERSION=, e.g. to something like
+
+#+BEGIN_SRC shell
+ZMQ_VERSION=4.3.0
+#+END_SRC
+
+*** Windows
+
+Only the MinGW version of Emacs is supported at the moment, i.e. the one you
+would get with the command
+
+#+BEGIN_SRC bash
+pacman -S mingw-w64-x86_64-emacs
+#+END_SRC
+
+in a MinGW shell.
+
+Alternatively you can build an Emacs with module support by following the
+instructions [[https://sourceforge.net/p/emacsbinw64/wiki/Build%20guideline%20for%20MSYS2-MinGW-w64%20system/][here]]. You will need to pass the =--with-modules= option to the
+=configure= script when building.
+
+See the instructions below on how to install the MinGW tools.
+**** Download the pre-built libraries
+
+You can download a tar archive containing the pre-built Windows dll files
+necessary to use this package. Inside the archive is an =emacs-zmq.dll= file
+containing v4.3.1 of =libzmq=. See the [[https://github.com/dzop/emacs-zmq/releases][releases]] page.
+
+After downloading, extract the archive contents into the same directory as this
+project.
+
+#+BEGIN_SRC bash
+cd ~/.emacs.d/elpa/<zmq directory>
+wget https://github.com/dzop/emacs-zmq/releases/download/v0.10.9/emacs-zmq-x86_64-w64-mingw32.tar.gz
+tar -xzf emacs-zmq-x86_64-w64-mingw32.tar.gz
+#+END_SRC
+
+**** Build using MinGW
+
+It is possible to use the included build chain on Windows using the [[https://www.msys2.org/][MSYS2]] MinGW
+tools.
+
+Install the 64-bit toolchain inside the MSYS2 shell via
+#+BEGIN_SRC shell
+pacman -S base-devel
+pacman -S git
+pacman -S mingw-w64-x86_64-gcc
+#+END_SRC
+
+Note: If you are using the official Git for Windows instead of MSYS2 Git, make
+sure to set
+
+#+BEGIN_SRC shell
+git config --global core.autocrlf false
+#+END_SRC
+
+during the build to avoid EOL issues and set it back to =true= (the default on
+Windows) when you are done building.
+
+Start the build from an MSYS2 MinGW 64-bit shell via =make=.
+
+** Testing
+
+Run =make test= in the top level directory.
+* Contexts
+
+To create a context:
+
+#+BEGIN_SRC elisp
+(zmq-context)
+#+END_SRC
+
+Normally only a single context object for the current Emacs session is
+necessary so the usual way to get the context for the current Emacs session is
+to call =zmq-current-context= which will create a context for the session only
+if one has not been created already. See [[id:7E843F84-F15C-42EA-8BA5-BCB91717ABBE][Context/socket/poller lifetime
+management]].
+
+Below is a table mapping the C API functions to their Emacs equivalent.
+
+| C                  | emacs-lisp              |
+|--------------------+-------------------------|
+| =zmq_ctx_new=      | =zmq-context=           |
+| =zmq_ctx_set=      | =zmq-context-set=       |
+| =zmq_ctx_get=      | =zmq-context-get=       |
+| =zmq_ctx_term=     | =zmq-context-terminate= |
+| =zmq_ctx_shutdown= | =zmq-context-shutdown=  |
+* Sockets
+:PROPERTIES:
+:Effort:   10
+:END:
+
+To create a socket:
+
+#+BEGIN_SRC elisp
+(zmq-socket (zmq-current-context) zmq-PUB)
+#+END_SRC
+
+To bind a socket:
+
+#+BEGIN_SRC elisp
+(zmq-bind sock "tcp://127.0.0.1:5555")
+#+END_SRC
+
+To receive a message without blocking:
+
+#+BEGIN_SRC elisp
+(let (msg)
+  (while (null (condition-case err
+                   (setq msg (zmq-recv sock zmq-NOBLOCK))
+                (zmq-EAGAIN nil)))
+    (sleep-for 1)))
+#+END_SRC
+
+Below is a table mapping the C API functions to their Emacs equivalent.
+
+| C                | emacs-lisp       |
+|------------------+------------------|
+| =zmq_socket=     | =zmq-socket=     |
+| =zmq_send=       | =zmq-send=       |
+| =zmq_recv=       | =zmq-recv=       |
+| =zmq_bind=       | =zmq-bind=       |
+| =zmq_unbind=     | =zmq-unbind=     |
+| =zmq_connect=    | =zmq-connect=    |
+| =zmq_disconnect= | =zmq-disconnect= |
+| =zmq_join=       | =zmq-join=       |
+| =zmq_leave=      | =zmq-leave=      |
+| =zmq_close=      | =zmq-close=      |
+| =zmq_setsockopt= | =zmq-socket-set= |
+| =zmq_getsockopt= | =zmq-socket-get= |
+
+In addition to the above, there are also some convenience functions for working
+with sockets. Currently this is only the function =zmq-bind-to-random-port=
+which takes a socket and an address and binds the socket to a random port on
+the address:
+
+#+BEGIN_SRC elisp
+(zmq-bind-to-random-port sock "tcp://127.0.0.1") ; returns port number
+#+END_SRC
+* Messages
+
+To create a new message object use =zmq-message=
+
+#+BEGIN_SRC elisp
+(zmq-message)
+#+END_SRC
+
+The above creates and initializes an empty message. You can also pass a string
+or a vector of bytes to =zmq-message= to initialize the message with some data
+
+#+BEGIN_SRC elisp
+(zmq-message "[mα, mβ] = iℏmγ")
+;; Initialize a message with a vector of bytes
+(zmq-message [0 10 100 29])
+#+END_SRC
+
+Below is a table mapping the C API functions to their Emacs equivalent.
+
+| C                        | emacs-lisp                   |
+|--------------------------+------------------------------|
+| =zmq_msg_init=           | =zmq-message=                |
+| =zmq_msg_init_data=      | =zmq-message=                |
+| =zmq_msg_recv=           | =zmq-message-recv=           |
+| =zmq_msg_send=           | =zmq-message-send=           |
+| =zmq_msg_move=           | =zmq-message-move=           |
+| =zmq_msg_copy=           | =zmq-message-copy=           |
+| =zmq_msg_close=          | =zmq-message-close=          |
+| =zmq_msg_data=           | =zmq-message-data=           |
+| =zmq_msg_size=           | =zmq-message-size=           |
+| =zmq_msg_more=           | =zmq-message-more-p=         |
+| =zmq_msg_set=            | =zmq-message-set=            |
+| =zmq_msg_get=            | =zmq-message-get=            |
+| =zmq_msg_gets=           | =zmq-message-property=       |
+| =zmq_msg_routing_id=     | =zmq-message-routing-id=     |
+| =zmq_msg_set_routing_id= | =zmq-message-set-routing-id= |
+| =zmq_msg_group=          | =zmq-message-group=          |
+| =zmq_msg_set_group=      | =zmq-message-set-group=      |
+** Multi-part messages
+
+To send a multi-part message:
+
+#+BEGIN_SRC elisp
+(zmq-send-multipart sock '("part1" "part2" "part3"))
+#+END_SRC
+
+To receive a multi-part message:
+
+#+BEGIN_SRC elisp
+(zmq-recv-multipart sock)
+#+END_SRC
+
+=zmq-recv-multipart= returns a list containing the parts of the message and
+always returns a list, even for a message containing a single part.
+* Polling
+
+Currently, polling requires that =libzmq= be built with the draft API to expose
+the =zmq_poller= interface. Below is an example of how you may poll a socket.
+
+#+BEGIN_SRC elisp
+(catch 'recvd
+  (let ((poller (zmq-poller))
+        (timeout 1000))
+    (zmq-poller-add poller sock (list zmq-POLLIN zmq-POLLOUT))
+    (while t
+      ;; `zmq-poller-wait-all' returns an alist of elements (sock . events)
+      (let* ((socks-events (zmq-poller-wait-all poller 1 timeout))
+             (events (cdr (zmq-assoc sock socks-events))))
+        (when (and events (member zmq-POLLIN events))
+          (throw 'recvd (zmq-recv sock)))))))
+#+END_SRC
+
+Below is a table mapping the C API functions to their Emacs equivalent.
+
+| C                      | emacs-lisp            |
+|------------------------+-----------------------|
+| =zmq_poller_new=       | =zmq-poller=          |
+| =zmq_poller_destroy=   | =zmq-poller-destroy=  |
+| =zmq_poller_add=       | =zmq-poller-add=      |
+| =zmq_poller_add_fd=    | =zmq-poller-add=      |
+| =zmq_poller_modify=    | =zmq-poller-modify=   |
+| =zmq_poller_modify_fd= | =zmq-poller-modify=   |
+| =zmq_poller_remove=    | =zmq-poller-remove=   |
+| =zmq_poller_remove_fd= | =zmq-poller-remove=   |
+| =zmq_poller_wait=      | =zmq-poller-wait=     |
+| =zmq_poller_wait_all=  | =zmq-poller-wait-all= |
+* Errors
+
+All errors generated by the underlying =C= API are converted into calls to
+=signal= in Emacs. So to handle errors, wrap your calls to =zmq= functions in a
+=condition-case= like so
+
+#+BEGIN_SRC elisp
+(setq poll-events
+      (while (null (condition-case nil
+                       (zmq-poller-wait poller 1)
+                     (zmq-EAGAIN nil)))
+        (sleep-for 1)))
+#+END_SRC
+
+The error symbols used are identical to the C error codes
+except with the prefix =zmq-=. Only the more common errors
+are defined as error symbols that can be caught with
+=condition-case=, below is the current list of errors that
+have error symbols defined:
+
+| EINVAL          |
+| EPROTONOSUPPORT |
+| ENOCOMPATPROTO  |
+| EADDRINUSE      |
+| EADDRNOTAVAIL   |
+| ENODEV          |
+| ETERM           |
+| ENOTSOCK        |
+| EMTHREAD        |
+| EFAULT          |
+| EINTR           |
+| ENOTSUP         |
+| ENOENT          |
+| ENOMEM          |
+| EAGAIN          |
+| EFSM            |
+| EHOSTUNREACH    |
+| EMFILE          |
+
+Any other error will signal a =zmq-ERROR= with an error
+message obtained from =zmq_strerror=.
+* Comparing ZMQ objects
+
+There are also predicate and comparison functions available for working with
+ZMQ objects:
+
+| zmq-poller-p  |
+| zmq-socket-p  |
+| zmq-context-p |
+| zmq-message-p |
+| zmq-equal     |
+| zmq-assoc     |
+
+=zmq-equal= and =zmq-assoc= work just like =equal= and =assoc= respectively,
+but can also compare ZMQ objects.
+* Getting/setting options
+
+To set an option for a =zmq-context=, =zmq-socket=, or =zmq-message= call:
+
+#+BEGIN_SRC elisp
+(zmq-context-set ctx zmq-BLOCKY nil)
+(zmq-socket-set sock zmq-IPV6 t)
+(zmq-message-set msg zmq-MORE t)
+#+END_SRC
+
+To get an option:
+
+#+BEGIN_SRC elisp
+(zmq-context-get ctx zmq-BLOCKY)
+(zmq-socket-get sock zmq-IPV6)
+(zmq-message-get msg zmq-MORE)
+#+END_SRC
+
+Or the convenience functions =zmq-set-option= and =zmq-get-option= can be used
+which will call one of the functions above based on the type of the first
+argument:
+
+#+BEGIN_SRC elisp
+(zmq-set-option ctx zmq-BLOCKY nil)
+(zmq-set-option sock zmq-IPV6 t)
+
+(zmq-get-option ctx zmq-BLOCKY)
+(zmq-get-option sock zmq-IPV6)
+#+END_SRC
+
+To access a =zmq-message= meta-data property use =zmq-message-property=:
+
+#+BEGIN_SRC elisp
+(zmq-message-property msg :identity)
+#+END_SRC
+
+The available metadata properties can be found in =zmq-message-properties=.
+
+** Boolean options
+
+Integer options which are interpreted as boolean in =libzmq= are interpreted in
+Emacs as boolean. For example, the socket option =zmq-IPV6= which enables IPV6
+connections for the socket is an integer option interpreted as a boolean value
+in the C API. In Emacs this option is a boolean. So to enable IPV6 connections
+you would do
+
+#+BEGIN_SRC elisp
+(zmq-socket-set sock zmq-IPV6 t)
+#+END_SRC
+
+and to disable them
+
+#+BEGIN_SRC elisp
+(zmq-socket-set sock zmq-IPV6 nil)
+#+END_SRC
+
+Similarly for all other socket, message, or context options which are
+interpreted as boolean by the C API.
+* Context/socket/poller lifetime management
+:PROPERTIES:
+:ID:       7E843F84-F15C-42EA-8BA5-BCB91717ABBE
+:END:
+
+The underlying Emacs module takes care of freeing the resources used by a ZMQ
+object during garbage collection. As a special case if a socket gets garbage
+collected, the =zmq-LINGER= property will be set to 0 for the socket
+(http://zguide.zeromq.org/page:all#Making-a-Clean-Exit). You probably still
+want to call the appropriate destructor function once your done using an object
+though.
+* Asynchronous subprocess
+
+There is also support for asynchronous processing via an Emacs subprocess. This
+is useful to have a subprocess do most of the message processing for an
+application, leaving the parent Emacs process free for editing tasks. To start
+a subprocess you pass a function form to =zmq-start-process= like so:
+
+#+BEGIN_SRC elisp
+(zmq-start-process
+ `(lambda ()
+    (let* ((ctx (zmq-current-context))
+           (sock (zmq-socket ctx zmq-SUB)))
+      BODY)))
+#+END_SRC
+
+Notice the quoting on the function, this is necessary to pass a lambda form to
+the subprocess as opposed to a byte-compiled lambda or closure. Given the above
+function, a subprocess will be created and the provided function will be called
+in the subprocess environment. You can also avoid a call to
+=zmq-current-context= by providing a function that takes a single argument. In
+this case, the argument will be set to the =zmq-current-context= in the
+subprocess environment:
+
+#+BEGIN_SRC elisp
+(zmq-start-process
+ `(lambda (ctx)
+    (let ((sock (zmq-socket ctx zmq-SUB)))
+      BODY)))
+#+END_SRC
+
+There are also routines to pass information between a subprocess and the parent
+Emacs process. You can send an s-expression, readable using =read=, to a
+subprocess with the function =zmq-subprocess-send=. The subprocess can then
+consume the sent expression by a call to =zmq-subprocess-read=. Note that
+=zmq-subprocess-read= is blocking. To avoid this blocking behavior you can poll
+the =stdin= stream to ensure that something can be read before calling
+=zmq-subprocess-read= in the subprocess, see the example below.
+
+For the parent Emacs process to read data from a subprocess, the subprocess
+should print an expression to =stdout=, e.g. using the function =zmq-prin1=,
+and give a filter function to the =:filter= key of the =zmq-start-process=
+call. The filter function is similar to a normal process filter function but
+only takes a single argument, a list expression that was printed to the
+=stdout= of a subprocess. Note, in the subprocess, *the expressions printed to*
+*=stdout= are restricted to be lists*. There is no such restriction when using
+=zmq-subprocess-send=.
+
+Below is a complete example of using =zmq-start-process=
+
+#+BEGIN_SRC elisp
+(let ((proc (zmq-start-process
+             `(lambda (ctx)
+                (let ((poller (zmq-poller)))
+                  ;; Poll for input on STDIN, i.e. input from the parent Emacs
+                  ;; process. NOTE: Only works on UNIX based systems.
+                  (zmq-poller-add poller 0 zmq-POLLIN)
+                  (catch 'exit
+                    (while t
+                      (when (zmq-poller-wait poller 100)
+                        (let ((sexp (zmq-subprocess-read)))
+                          (zmq-prin1 sexp)
+                          (throw 'exit t)))))))
+             ;; A filter function which prints out messages sent by the
+             ;; subprocess.
+             :filter (lambda (sexp)
+                       (message "echo %s" sexp)))))
+  ;; Let the process start
+  (sleep-for 0.2)
+  (zmq-subprocess-send proc (list 'send "topic1")))
+#+END_SRC

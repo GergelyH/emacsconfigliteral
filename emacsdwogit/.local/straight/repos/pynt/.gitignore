@@ -1,0 +1,8 @@
+.ipynb_checkpoint/
+*.ipynb
+*.tar
+gts/
+\#*
+archive-contents
+__pycache__/
+

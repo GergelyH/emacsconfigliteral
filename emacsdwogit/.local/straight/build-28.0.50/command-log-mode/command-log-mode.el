@@ -1,0 +1,1 @@
+/home/gergeh/.emacs.d/.local/straight/repos/command-log-mode/command-log-mode.el
