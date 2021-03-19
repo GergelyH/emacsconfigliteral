@@ -1,8 +1,8 @@
 ;;; package-build.el --- Tools for assembling a package archive  -*- lexical-binding: t -*-
 
-;; Copyright (C) 2011-2020 Donald Ephraim Curtis <dcurtis@milkbox.net>
-;; Copyright (C) 2012-2020 Steve Purcell <steve@sanityinc.com>
-;; Copyright (C) 2016-2020 Jonas Bernoulli <jonas@bernoul.li>
+;; Copyright (C) 2011-2021 Donald Ephraim Curtis <dcurtis@milkbox.net>
+;; Copyright (C) 2012-2021 Steve Purcell <steve@sanityinc.com>
+;; Copyright (C) 2016-2021 Jonas Bernoulli <jonas@bernoul.li>
 ;; Copyright (C) 2009 Phil Hagelberg <technomancy@gmail.com>
 
 ;; Author: Donald Ephraim Curtis <dcurtis@milkbox.net>
@@ -399,9 +399,9 @@ is used instead."
                 (and (file-exists-p file)
                      (lm-commentary file)))))
     (with-temp-buffer
-      (if (>= emacs-major-version 27)
+      (if (>= emacs-major-version 28)
           (insert commentary)
-        ;; Taken from 27.1's `lm-commentary'.
+        ;; Taken from 28.0's `lm-commentary'.
         (insert
          (replace-regexp-in-string       ; Get rid of...
           "[[:blank:]]*$" ""             ; trailing white-space
@@ -411,11 +411,13 @@ is used instead."
                    (concat "^;;;[[:blank:]]*\\("
                            lm-commentary-header
                            "\\):[[:blank:]\n]*")
-                   "^;;[[:blank:]]*"     ; double semicolon prefix
+                   "^;;[[:blank:]]?"     ; double semicolon prefix
                    "[[:blank:]\n]*\\'")  ; trailing new-lines
            "" commentary))))
-      (unless (= (char-before) ?\n)
+      (unless (or (bobp) (= (char-before) ?\n))
         (insert ?\n))
+      ;; We write the file even if it is empty, which is perhaps
+      ;; a questionable choice, but at least it's consistent.
       (let ((coding-system-for-write buffer-file-coding-system))
         (write-region nil nil
                       (expand-file-name (concat name "-readme.txt")
@@ -437,9 +439,13 @@ SOURCE-DIR and TARGET-DIR respectively."
                 (progn
                   (setq info (concat (file-name-sans-extension tmp) ".info"))
                   (unless (file-exists-p info)
+                    ;; If the info file is located in a subdirectory
+                    ;; and contains relative includes, then it is
+                    ;; necessary to run makeinfo in the subdirectory.
                     (with-demoted-errors "Error: %S"
                       (package-build--run-process
-                       source-dir nil "makeinfo" src "-o" info))
+                       (file-name-directory src) nil
+                       "makeinfo" src "-o" info))
                     (package-build--message "Created %s" info)))
               (delete-file tmp)))
           (with-demoted-errors "Error: %S"
@@ -707,7 +713,7 @@ in `package-build-archive-dir'."
                  (package-build--desc-from-library
                   name version commit files))))
     (unless (string-equal (downcase (concat name ".el"))
-                          (downcase file))
+                          (downcase (file-name-nondirectory file)))
       (error "Single file %s does not match package name %s" file name))
     (copy-file source target t)
     (let ((enable-local-variables nil)

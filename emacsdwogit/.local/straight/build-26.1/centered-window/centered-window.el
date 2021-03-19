@@ -1,0 +1,1 @@
+/home/gergeh/.emacs.d/.local/straight/repos/centered-window-mode/centered-window.el

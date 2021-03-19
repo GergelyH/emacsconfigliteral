@@ -1,0 +1,1 @@
+/home/gergeh/.emacs.d/.local/straight/repos/auctex/tests/latex/font-latex-test.el

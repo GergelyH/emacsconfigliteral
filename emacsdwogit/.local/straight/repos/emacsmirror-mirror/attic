@@ -90,7 +90,6 @@ bbdbpalm
 bbdbrc
 bdo
 beatnik
-better-defaults
 bhl
 bibeltex
 bibfind
@@ -189,6 +188,7 @@ commit-patch-buffer
 common-directory
 company-edbi
 company-ghc
+company-lsp
 company-org-roam
 company-racer
 company-tern
@@ -389,6 +389,7 @@ esms
 esmtpmail
 espect
 etrack
+evil-magit
 evil-rebellion
 evil-scout
 fa-extras
@@ -434,7 +435,6 @@ floatbg
 fluiddb
 flycheck-demjsonlint
 flycheck-ensime
-flycheck-google-cpplint
 flycheck-mix
 flycheck-purescript
 flycheck-rebar3
@@ -497,6 +497,7 @@ git-show
 git-time-machine
 github
 github-api-v3
+github-issues
 gitty
 global-modes
 gneve
@@ -538,8 +539,10 @@ hatena-group-keyword-mode
 hbmk
 header-action
 hebeng
+helm-addressbook
 helm-anything
 helm-delicious
+helm-elscreen
 helm-ghc
 helm-ipython
 helm-nrepl
@@ -576,7 +579,6 @@ html-sizes
 hugs-mode
 hyper-compile
 hyphenate
-i-ching
 ibs
 ibuffer-perspective
 ibus
@@ -585,7 +587,6 @@ idle-highlight
 idledo
 idna
 ido-clever-match
-ido-complete-space-or-hyphen
 ido-describe-bindings
 ido-migemo
 ido-occur
@@ -593,7 +594,6 @@ ifile-gnus
 ifind-mode
 ilisp
 ilocate-library
-image-plus
 imagetext
 iman
 imaxima
@@ -888,7 +888,9 @@ org-mac-protocol
 org-magit
 org-multiple-keymap
 org-osm-link
+org-password-manager
 org-pdfview
+org-pua
 org-site
 org-taskforecast
 org-website
@@ -900,12 +902,14 @@ osx-osascript
 osx-typecreator
 otp
 outline-m
+outlined-elisp-mode
 p4pymarshal
 pack-windows
 page-mode
 pair-mode
 paredit-viper-compat
 paren-glint
+parinfer
 pases
 passthword
 pastie
@@ -1038,6 +1042,7 @@ rfc
 rfc-util
 rfcr
 rfcview
+rfringe
 rheeet-mail
 rhtml-minor-mode
 ri
@@ -1077,7 +1082,6 @@ scheme-here
 scheme48
 scim-bridge
 scp
-scpaste
 scrape
 scrat
 screen-lines
@@ -1123,6 +1127,7 @@ sly-company
 smallurl
 smart-snippet
 smartquotes
+snippet
 soap
 sorter
 sos
@@ -1212,6 +1217,9 @@ text-to-html
 text-translator
 textlint
 textmenu
+tfs
+thesaurus
+thingatpt-ext
 tie-mode
 tiger
 timan
@@ -1277,7 +1285,6 @@ variant-abbc
 vc-mks
 vel
 verbiste
-vex
 vh-scroll
 view-tp
 viewtex
@@ -1332,6 +1339,7 @@ wisp-mode
 with-file
 with-saved-messages
 wl-list
+wn-org
 woof
 word-count
 word-counter

@@ -1,0 +1,1 @@
+/home/gergeh/.emacs.d/.local/straight/repos/emacs-so-long/tests/autoload-major-mode-tests.el
